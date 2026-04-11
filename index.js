@@ -35,12 +35,22 @@ let moveY = 1;
 // draw();
 let FULL_CIRCLE = 2 * Math.PI;
 class Ball {
-    constructor(x, y, radius, moveX, moveY) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.moveX = moveX;
-        this.moveY = moveY;
+
+    static BALL_SPEC = {
+        RADIUS_MIN: 10,
+        RADIUS_MAX: 40,
+        MOVE_X_MIN: -5,
+        MOVE_X_MAX: 5,
+        MOVE_Y_MIN: -5,
+        MOVE_Y_MAX: 5,
+    }
+
+    constructor(frame) {
+        this.radius = random(Ball.BALL_SPEC.RADIUS_MIN, Ball.BALL_SPEC.RADIUS_MAX);
+        this.x = random(this.radius, frame.width - this.radius);
+        this.y = random(this.radius, frame.height - this.radius);
+        this.moveX = random(Ball.BALL_SPEC.MOVE_X_MIN, Ball.BALL_SPEC.MOVE_X_MAX);
+        this.moveY = random(Ball.BALL_SPEC.MOVE_Y_MIN, Ball.BALL_SPEC.MOVE_Y_MAX);
     }
 
     move() {
@@ -53,9 +63,11 @@ class Ball {
     attackWall() {
         let attackWallX = this.x + this.radius > frame.width || this.x - this.radius < 0;
         let attackWallY = this.y + this.radius > frame.height || this.y - this.radius < 0;
-        if (attackWallX || attackWallY) {
-            this.moveX = - this.moveX;
-            this.moveY = - this.moveY;
+        if (attackWallX) {
+            this.moveX = -this.moveX;
+        }
+        if (attackWallY) {
+            this.moveY = -this.moveY;
         }
     }
 
@@ -67,14 +79,22 @@ class Ball {
     }
 }
 
-let firstBall = new Ball(40, 40, 40, 5, 5);
-let secondBall = new Ball(frame.width - 40 , 40, 40, -5, 5);
+function random(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
+const BALL_SIZES = 20;
+
+function generateBalls() {
+    return Array.from({ length: BALL_SIZES }, () => new Ball(frame));
+}
+
+const balls = generateBalls();
+console.log(balls);
 function start() {
     // vẽ hình tròn
     drawTool.clearRect(0, 0, frame.width, frame.height);
-    firstBall.move();
-    secondBall.move();
+    balls.forEach((ball) => ball.move())
 
     requestAnimationFrame(start);
 }
